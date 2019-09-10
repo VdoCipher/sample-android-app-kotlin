@@ -240,7 +240,7 @@ class VdoPlayerControlView @JvmOverloads constructor(
             if (it.isSpeedControlSupported) {
                 speedControlButton.visibility = VISIBLE
                 val speed = it.playbackSpeed
-                val chosenSpeedIndex = getClosestFloatIndex(allowedSpeedList, speed)
+                chosenSpeedIndex = getClosestFloatIndex(allowedSpeedList, speed)
                 speedControlButton.text = allowedSpeedStrList[chosenSpeedIndex]
             } else {
                 speedControlButton.visibility = GONE
