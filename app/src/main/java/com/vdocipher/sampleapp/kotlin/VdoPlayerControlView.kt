@@ -487,7 +487,7 @@ class VdoPlayerControlView @JvmOverloads constructor(
                 track.type == Track.TYPE_VIDEO ->
                     "${track.bitrate / 1024}kbps (${dataExpenditurePerHour(track.bitrate)})"
                 track.type == Track.TYPE_CAPTIONS ->
-                    track.language
+                    track.language ?: "unknown"
                 else ->
                     track.toString()
             }

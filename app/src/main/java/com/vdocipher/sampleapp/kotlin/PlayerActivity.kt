@@ -14,7 +14,7 @@ import com.vdocipher.aegis.media.ErrorDescription
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.VdoPlayer
 import com.vdocipher.aegis.player.VdoPlayer.VdoInitParams
-import com.vdocipher.aegis.player.VdoPlayerFragment
+import com.vdocipher.aegis.player.VdoPlayerSupportFragment
 import android.widget.RelativeLayout
 import android.os.Build
 
@@ -25,7 +25,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
         const val EXTRA_VDO_PARAMS = "vdo_params"
     }
 
-    private lateinit var playerFragment: VdoPlayerFragment
+    private lateinit var playerFragment: VdoPlayerSupportFragment
     private lateinit var playerControlView: VdoPlayerControlView
     private lateinit var eventLog: TextView
 
@@ -49,7 +49,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
             if (it == null) vdoParams = intent.getParcelableExtra(EXTRA_VDO_PARAMS)
         }
 
-        playerFragment = fragmentManager.findFragmentById(R.id.vdo_player_fragment) as VdoPlayerFragment
+        playerFragment = supportFragmentManager.findFragmentById(R.id.vdo_player_fragment) as VdoPlayerSupportFragment
         playerControlView = findViewById(R.id.player_control_view)
         eventLog = findViewById(R.id.event_log)
         eventLog.movementMethod = ScrollingMovementMethod.getInstance()
