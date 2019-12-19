@@ -71,16 +71,16 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
         super.onStop()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         Log.d(TAG, "onSaveInstanceState called")
         super.onSaveInstanceState(outState)
         vdoParams?.let {
-            outState?.putParcelable("initParams", it)
+            outState.putParcelable("initParams", it)
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        val newOrientation = newConfig!!.orientation
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        val newOrientation = newConfig.orientation
         val oldOrientation = currentOrientation
         currentOrientation = newOrientation
         Log.i(TAG, "new orientation " +
