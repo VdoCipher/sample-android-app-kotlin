@@ -13,17 +13,24 @@ import android.widget.Toast
 import com.vdocipher.aegis.media.ErrorDescription
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.VdoPlayer
-import com.vdocipher.aegis.player.VdoPlayer.VdoInitParams
+import com.vdocipher.aegis.player.VdoInitParams
 import com.vdocipher.aegis.player.VdoPlayerSupportFragment
 import android.widget.RelativeLayout
 import android.os.Build
+import androidx.annotation.WorkerThread
+import com.vdocipher.aegis.player.PlayerHost
+import com.vdocipher.sampleapp.kotlin.databinding.ActivityPlayerBinding
+import org.json.JSONException
+import java.io.IOException
 
-class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
+class PlayerActivity : AppCompatActivity(), PlayerHost.InitializationListener {
 
     companion object {
         private const val TAG = "PlayerActivity"
         const val EXTRA_VDO_PARAMS = "vdo_params"
     }
+
+    private lateinit var binding: ActivityPlayerBinding
 
     private lateinit var playerFragment: VdoPlayerSupportFragment
     private lateinit var playerControlView: VdoPlayerControlView
@@ -36,7 +43,9 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate called")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_player)
+        binding = ActivityPlayerBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.decorView.setOnSystemUiVisibilityChangeListener(systemUiVisibilityListener)
@@ -51,6 +60,9 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
 
         playerFragment = supportFragmentManager.findFragmentById(R.id.vdo_player_fragment) as VdoPlayerSupportFragment
         playerControlView = findViewById(R.id.player_control_view)
+
+        findViewById<TextView>(R.id.library_version).text = "sdk version: " + com.vdocipher.aegis.BuildConfig.VDO_VERSION_NAME
+
         eventLog = findViewById(R.id.event_log)
         eventLog.movementMethod = ScrollingMovementMethod.getInstance()
         showControls(false)
@@ -98,6 +110,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 // hide other views
                 findViewById<TextView>(R.id.title_text).visibility = View.GONE
+                findViewById<TextView>(R.id.library_version).visibility = View.GONE
                 findViewById<View>(R.id.log_container).visibility = View.GONE
                 findViewById<View>(R.id.vdo_player_fragment).layoutParams =
                     RelativeLayout.LayoutParams(
@@ -112,6 +125,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
             else -> {
                 // show other views
                 findViewById<TextView>(R.id.title_text).visibility = View.VISIBLE
+                findViewById<TextView>(R.id.library_version).visibility = View.VISIBLE
                 findViewById<View>(R.id.log_container).visibility = View.VISIBLE
                 findViewById<View>(R.id.vdo_player_fragment).layoutParams =
                     RelativeLayout.LayoutParams(
@@ -134,7 +148,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
         }
     }
 
-    override fun onInitializationSuccess(playerHost: VdoPlayer.PlayerHost?, player: VdoPlayer?, wasRestored: Boolean) {
+    override fun onInitializationSuccess(playerHost: PlayerHost?, player: VdoPlayer?, wasRestored: Boolean) {
         Log.i(TAG, "onInitializationSuccess")
         log("onInitializationSuccess")
         player!!.addPlaybackEventListener(playbackListener)
@@ -143,13 +157,14 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
 
         playerControlView.setFullscreenActionListener(fullscreenToggleListener)
         playerControlView.setControllerVisibilityListener(visibilityListener)
+        playerControlView.setVdoParamsGenerator(vdoParamsGenerator)
 
         // load media to the player
         player.load(vdoParams)
         log("loaded init params to player")
     }
 
-    override fun onInitializationFailure(playerHost: VdoPlayer.PlayerHost?, errorDescription: ErrorDescription?) {
+    override fun onInitializationFailure(playerHost: PlayerHost?, errorDescription: ErrorDescription?) {
         val msg = "onInitializationFailure: errorCode = ${errorDescription!!.errorCode}: ${errorDescription.errorMsg}"
         Log.e(TAG, msg)
         log(msg)
@@ -185,7 +200,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
         }
 
         override fun onLoadError(vdoInitParams: VdoInitParams, errorDescription: ErrorDescription) {
-            val err = "onLoadError code: " + errorDescription.errorCode
+            val err = "onLoadError code: " + errorDescription.errorCode + ": " + errorDescription.errorMsg
             Log.e(TAG, err)
             log(err)
         }
@@ -225,6 +240,23 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
         }
     }
 
+    private val vdoParamsGenerator: VdoPlayerControlView.VdoParamsGenerator =
+        object : VdoPlayerControlView.VdoParamsGenerator {
+            override fun getNewVdoInitParams(): VdoInitParams?
+            {
+                try {
+                    return obtainNewVdoParams()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    runOnUiThread {
+                        showToast("Error generating new otp and playbackInfo: " + e.javaClass.simpleName)
+                        log("Error generating new otp and playbackInfo")
+                    }
+                    return null
+                }
+            }
+        }
+
     private fun initializePlayer() {
         vdoParams.let {
             if (it != null) {
@@ -251,13 +283,7 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
 
         Thread(Runnable {
             try {
-                val pair = sampleOtpAndPlaybackInfo()
-                vdoParams = VdoInitParams.Builder()
-                    .setOtp(pair.first)
-                    .setPlaybackInfo(pair.second)
-                    .setPreferredCaptionsLanguage("en")
-                    .build()
-                Log.i(TAG, "obtained new otp and playbackInfo")
+                vdoParams = obtainNewVdoParams()
                 runOnUiThread { initializePlayer() }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -267,6 +293,19 @@ class PlayerActivity : AppCompatActivity(), VdoPlayer.InitializationListener {
                 }
             }
         }).start()
+    }
+
+    @WorkerThread
+    @Throws(IOException::class, JSONException::class)
+    private fun obtainNewVdoParams(): VdoInitParams? {
+        val pair = sampleOtpAndPlaybackInfo()
+        val vdoParams = VdoInitParams.Builder()
+            .setOtp(pair.first)
+            .setPlaybackInfo(pair.second)
+            .setPreferredCaptionsLanguage("en")
+            .build()
+        Log.i(TAG, "obtained new otp and playbackInfo")
+        return vdoParams
     }
 
     private fun showToast(msg: String) {

@@ -21,7 +21,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.offline.*
+import com.vdocipher.aegis.player.VdoInitParams
 import com.vdocipher.aegis.player.VdoPlayer
+import com.vdocipher.sampleapp.kotlin.databinding.ActivityDownloadsBinding
 import java.io.File
 import java.util.Arrays
 import kotlin.collections.ArrayList
@@ -42,7 +44,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         private fun statusString(status: DownloadStatus): String {
             return when (status.status) {
                 VdoDownloadManager.STATUS_COMPLETED -> "Completed"
-                VdoDownloadManager.STATUS_FAILED -> "Error " + status.reason
+                VdoDownloadManager.STATUS_FAILED -> "Error " + status.reason + " " + status.reasonDescription
                 VdoDownloadManager.STATUS_PENDING -> "Queued"
                 VdoDownloadManager.STATUS_PAUSED -> "Paused " + status.downloadPercent + "%"
                 VdoDownloadManager.STATUS_DOWNLOADING -> "Downloading " + status.downloadPercent + "%"
@@ -50,6 +52,8 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
             }
         }
     }
+
+    private lateinit var binding: ActivityDownloadsBinding
 
     private lateinit var download1: Button
     private lateinit var download2: Button
@@ -66,7 +70,9 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_downloads)
+        binding = ActivityDownloadsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         download1 = findViewById(R.id.download_btn_1)
         download2 = findViewById(R.id.download_btn_2)
@@ -138,9 +144,9 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
     }
 
     override fun onFailed(mediaId: String, downloadStatus: DownloadStatus) {
-        Log.e(TAG, mediaId + " download error: " + downloadStatus.reason)
+        Log.e(TAG, mediaId + " download error: " + downloadStatus.reason + " " + downloadStatus.reasonDescription)
         Toast.makeText(
-            this, " download error: " + downloadStatus.reason,
+            this, " download error: " + downloadStatus.reason + " " + downloadStatus.reasonDescription,
             Toast.LENGTH_LONG
         ).show()
         updateListItem(downloadStatus)
@@ -416,7 +422,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
             return
         }
         val intent = Intent(this, PlayerActivity::class.java)
-        val vdoParams = VdoPlayer.VdoInitParams.createParamsForOffline(downloadStatus.mediaInfo.mediaId)
+        val vdoParams = VdoInitParams.createParamsForOffline(downloadStatus.mediaInfo.mediaId)
         intent.putExtra(PlayerActivity.EXTRA_VDO_PARAMS, vdoParams)
         startActivity(intent)
     }
