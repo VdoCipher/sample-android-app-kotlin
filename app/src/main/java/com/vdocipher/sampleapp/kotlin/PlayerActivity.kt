@@ -208,6 +208,7 @@ class PlayerActivity : AppCompatActivity(), PlayerHost.InitializationListener {
         override fun onLoaded(vdoInitParams: VdoInitParams) {
             Log.i(TAG, "onLoaded")
             log("onLoaded")
+            playerControlView.verifyAndUpdateCaptionsButton()
         }
 
         override fun onError(vdoParams: VdoInitParams, errorDescription: ErrorDescription) {

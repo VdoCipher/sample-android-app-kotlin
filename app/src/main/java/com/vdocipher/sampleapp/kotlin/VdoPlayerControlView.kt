@@ -144,6 +144,7 @@ class VdoPlayerControlView @JvmOverloads constructor(
         speedControlButton.setOnClickListener(uiListener)
         captionsButton = findViewById(R.id.vdo_captions)
         captionsButton.setOnClickListener(uiListener)
+        captionsButton.visibility = GONE
         qualityButton = findViewById(R.id.vdo_quality)
         qualityButton.setOnClickListener(uiListener)
         enterFullscreenButton = findViewById(R.id.vdo_enter_fullscreen)
@@ -170,6 +171,21 @@ class VdoPlayerControlView @JvmOverloads constructor(
         player?.removePlaybackEventListener(uiListener)
         player = newPlayer
         newPlayer?.addPlaybackEventListener(uiListener)
+    }
+
+    fun verifyAndUpdateCaptionsButton() {
+        // get all available tracks of type trackType
+        val availableTracks = player!!.availableTracks
+        Log.i(TAG, availableTracks.size.toString() + " tracks available")
+        val typeTrackList: ArrayList<Track> = ArrayList()
+        for (availableTrack in availableTracks) {
+            if (availableTrack.type == Track.TYPE_CAPTIONS) {
+                typeTrackList.add(availableTrack)
+            }
+        }
+        if (typeTrackList != null && typeTrackList.size > 0) {
+            captionsButton.visibility = VISIBLE
+        }
     }
 
     fun setFullscreenActionListener(listener: FullscreenActionListener) {
