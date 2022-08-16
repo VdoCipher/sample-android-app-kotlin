@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">VdocipherSampleApp-Kotlin</string>
+    <string name="play_with_custom_ui">Play with custom ui</string>
+    <string name="play_with_inbuilt_ui">Play with inbuilt ui</string>
+    <string name="offline_playback">Offline Playback</string>
+    <string name="stop_all">STOP ALL</string>
+    <string name="resume_all">RESUME ALL</string>
+    <string name="delete_all">DELETE ALL</string>
+    <string name="refresh">REFRESH</string>
+    <string name="downloads">Downloads</string>
+    <string name="download_all">Download All</string>
+    <string name="vdocipher_sample_application">VdoCipher Sample Application</string>
+    <string name="online_playback">Online Playback</string>
+    <string name="no_events_yet">No events yet</string>
+    <string name="download_sample_1">Download Sample 1</string>
+    <string name="download_sample_2">Download Sample 2</string>
+    <string name="download_sample_3">Download Sample 3</string>
 </resources>

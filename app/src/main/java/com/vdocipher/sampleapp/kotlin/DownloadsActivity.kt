@@ -1,32 +1,28 @@
 package com.vdocipher.sampleapp.kotlin
 
-import androidx.appcompat.app.AppCompatActivity
-import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.annotation.RequiresApi
-import com.vdocipher.aegis.media.ErrorDescription
 import android.content.Intent
-import android.os.Bundle
-import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Environment
+import android.os.*
+import android.util.Log
+import android.util.Pair
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
+import com.vdocipher.aegis.media.ErrorDescription
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.offline.*
 import com.vdocipher.aegis.player.VdoInitParams
-import com.vdocipher.aegis.player.VdoPlayer
 import com.vdocipher.sampleapp.kotlin.databinding.ActivityDownloadsBinding
 import java.io.File
-import java.util.Arrays
-import kotlin.collections.ArrayList
+import java.util.*
 
 class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener {
     companion object {
@@ -81,7 +77,9 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         download2.isEnabled = false
         download3.isEnabled = false
         downloadsListView = findViewById(R.id.downloads_list)
-
+        val resumeAll = findViewById<AppCompatButton>(R.id.resume_all)
+        val stopAll = findViewById<AppCompatButton>(R.id.stop_all)
+        val downloadAll = findViewById<AppCompatButton>(R.id.download_all)
         deleteAll = findViewById(R.id.delete_all)
         deleteAll.isEnabled = false
         refreshList = findViewById(R.id.refresh_list)
@@ -89,7 +87,18 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         downloadStatusList = ArrayList()
         downloadAdapter = DownloadAdapter(downloadStatusList)
         downloadsListView.adapter = downloadAdapter
-        downloadsListView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        downloadsListView.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
+
+        stopAll.setOnClickListener { stopAll() }
+
+        resumeAll.setOnClickListener { resumeAll() }
+
+        downloadAll.setOnClickListener { v: View? -> downloadAllMediaItems() }
 
         refreshList.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -134,7 +143,10 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
     }
 
     override fun onChanged(mediaId: String, downloadStatus: DownloadStatus) {
-        Log.d(TAG, "Download status changed: " + mediaId + " " + downloadStatus.downloadPercent + "%")
+        Log.d(
+            TAG,
+            "Download status changed: " + mediaId + " " + downloadStatus.downloadPercent + "%"
+        )
         updateListItem(downloadStatus)
     }
 
@@ -144,9 +156,13 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
     }
 
     override fun onFailed(mediaId: String, downloadStatus: DownloadStatus) {
-        Log.e(TAG, mediaId + " download error: " + downloadStatus.reason + " " + downloadStatus.reasonDescription)
+        Log.e(
+            TAG,
+            mediaId + " download error: " + downloadStatus.reason + " " + downloadStatus.reasonDescription
+        )
         Toast.makeText(
-            this, " download error: " + downloadStatus.reason + " " + downloadStatus.reasonDescription,
+            this,
+            " download error: " + downloadStatus.reason + " " + downloadStatus.reasonDescription,
             Toast.LENGTH_LONG
         ).show()
         updateListItem(downloadStatus)
@@ -157,12 +173,99 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         removeListItem(mediaId)
     }
 
-    // Private
+    private fun getAllMediaIds(): Array<String> {
+        val mediaIdList = ArrayList<String>()
+        for (status in downloadStatusList) {
+            mediaIdList.add(status.mediaInfo.mediaId)
+        }
+        return mediaIdList.toTypedArray()
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun maybeCreateManager() {
         if (vdoDownloadManager == null) {
             vdoDownloadManager = VdoDownloadManager.getInstance(this)
+            //Provide custom implementation if you want to customize notifications look and feel
+            vdoDownloadManager?.setDownloadNotificationHelper(CustomDownloadNotificationHelper::class.java)
+        }
+    }
+
+    private fun stopAll() {
+        if (downloadStatusList.isNotEmpty()) {
+            val mediaIds: Array<String> = getAllMediaIds()
+            vdoDownloadManager!!.stopDownloads(*mediaIds)
+        }
+    }
+
+
+    private fun resumeAll() {
+        if (downloadStatusList.isNotEmpty()) {
+            val mediaIds: Array<String> = getAllMediaIds()
+            vdoDownloadManager!!.resumeDownloads(*mediaIds)
+        }
+    }
+
+    private fun downloadAllMediaItems() {
+        //list of OTP and Playback Info
+        val otpPlaybackInfoList: MutableList<Pair<String, String>> = ArrayList()
+        otpPlaybackInfoList.add(Pair(OTP_1, PLAYBACK_INFO_1))
+        otpPlaybackInfoList.add(Pair(OTP_2, PLAYBACK_INFO_2))
+        otpPlaybackInfoList.add(Pair(OTP_3, PLAYBACK_INFO_3))
+        downloadMediaItems(otpPlaybackInfoList)
+    }
+
+    private fun downloadMediaItems(otpAndPlaybackInfoList: List<Pair<String, String>>) {
+        val handlerThread = HandlerThread(TAG)
+        handlerThread.start()
+        val handler = Handler(handlerThread.looper)
+        for (otpAndPlaybackInfo in otpAndPlaybackInfoList) {
+
+            //retrieve the download option iteratively for each video
+            handler.post {
+                OptionsDownloader().downloadOptionsWithOtp(
+                    otpAndPlaybackInfo.first,
+                    otpAndPlaybackInfo.second,
+                    null,
+                    object : OptionsDownloader.Callback {
+                        override fun onOptionsReceived(options: DownloadOptions) {
+                            Log.i(TAG, "onOptionsReceived")
+
+                            //Before starting download we have to select one audio and one video track from available tracks in options.
+
+                            //We will store selected tracks here
+                            val selectionIndices = IntArray(2)
+
+                            //Selecting video track and audio track
+                            var maxBitrate = Int.MIN_VALUE
+                            var videoTrackIndex = -1
+                            var audioTrackIndex = -1
+                            for (index in options.availableTracks.indices) {
+                                val track =
+                                    options.availableTracks[index]
+
+                                //Download option can contain multiple video track, we select video track with max bitrate.
+                                if (track.type == Track.TYPE_VIDEO && track.bitrate > maxBitrate) {
+                                    videoTrackIndex = index
+                                    maxBitrate = track.bitrate
+                                }
+
+                                //Download option will always contain only one audio track.
+                                if (track.type == Track.TYPE_AUDIO) {
+                                    audioTrackIndex = index
+                                }
+                            }
+                            selectionIndices[0] = audioTrackIndex //Set audio track index.
+                            selectionIndices[1] = videoTrackIndex //Set video track index.
+                            downloadSelectedOptions(options, selectionIndices)
+                        }
+
+                        override fun onOptionsNotReceived(errDesc: ErrorDescription) {
+                            val errMsg = "onOptionsNotReceived : $errDesc"
+                            Log.e(TAG, errMsg)
+                            Toast.makeText(this@DownloadsActivity, errMsg, Toast.LENGTH_LONG).show()
+                        }
+                    })
+            }
         }
     }
 
@@ -187,7 +290,11 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
 
                 if (statusList.isEmpty()) {
                     Log.w(TAG, "No query results found")
-                    Toast.makeText(this@DownloadsActivity, "No query results found", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@DownloadsActivity,
+                        "No query results found",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@QueryResultListener
                 }
                 Log.i(TAG, statusList.size.toString() + " results found")
@@ -225,7 +332,8 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
 
     private fun setDownloadListeners(
         downloadButton: Button, mediaName: String,
-        otp: String, playbackInfo: String) {
+        otp: String, playbackInfo: String
+    ) {
         runOnUiThread {
             downloadButton.isEnabled = true
             downloadButton.text = "Download $mediaName"
@@ -237,18 +345,22 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         Handler(handlerThread.looper).post {
-            OptionsDownloader().downloadOptionsWithOtp(otp, playbackInfo, object : OptionsDownloader.Callback {
-                override fun onOptionsReceived(options: DownloadOptions) {
-                    Log.i(TAG, "onOptionsReceived")
-                    showSelectionDialog(options, options.mediaInfo.duration)
-                }
+            OptionsDownloader().downloadOptionsWithOtp(
+                otp,
+                playbackInfo,
+                null,
+                object : OptionsDownloader.Callback {
+                    override fun onOptionsReceived(options: DownloadOptions) {
+                        Log.i(TAG, "onOptionsReceived")
+                        showSelectionDialog(options, options.mediaInfo.duration)
+                    }
 
-                override fun onOptionsNotReceived(errDesc: ErrorDescription) {
-                    val errMsg = "onOptionsNotReceived : $errDesc"
-                    Log.e(TAG, errMsg)
-                    Toast.makeText(this@DownloadsActivity, errMsg, Toast.LENGTH_LONG).show()
-                }
-            })
+                    override fun onOptionsNotReceived(errDesc: ErrorDescription) {
+                        val errMsg = "onOptionsNotReceived : $errDesc"
+                        Log.e(TAG, errMsg)
+                        Toast.makeText(this@DownloadsActivity, errMsg, Toast.LENGTH_LONG).show()
+                    }
+                })
         }
     }
 
@@ -266,7 +378,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         override fun onTracksSelected(downloadOptions: DownloadOptions, selectedTracks: IntArray) {
             Log.i(
                 TAG,
-                selectedTracks.size.toString() + " options selected: " + Arrays.toString(selectedTracks)
+                selectedTracks.size.toString() + " options selected: " + selectedTracks.contentToString()
             )
             val durationMs = downloadOptions.mediaInfo.duration
             Log.i(TAG, "---- selected tracks ----")
@@ -293,7 +405,10 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         }
     }
 
-    private fun downloadSelectedOptions(downloadOptions: DownloadOptions, selectionIndices: IntArray) {
+    private fun downloadSelectedOptions(
+        downloadOptions: DownloadOptions,
+        selectionIndices: IntArray
+    ) {
         val selections = DownloadSelections(downloadOptions, selectionIndices)
 
         // ensure external storage is in read-write mode
@@ -325,11 +440,11 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         Log.i(TAG, "will save media to $downloadLocation")
 
         // build a DownloadRequest
-        val request = DownloadRequest.Builder(selections, downloadLocation).build()
+        val request = DownloadRequest.Builder(selections).build()
 
         // enqueue request to VdoDownloadManager for download
         try {
-            vdoDownloadManager!!.enqueue(request)
+            vdoDownloadManager!!.enqueueV2(request)
         } catch (e: IllegalArgumentException) {
             Log.e(TAG, "error enqueuing download request")
             Toast.makeText(this, "error enqueuing download request", Toast.LENGTH_LONG).show()
@@ -348,7 +463,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
     private fun showItemSelectedDialog(downloadStatus: DownloadStatus) {
         val builder = AlertDialog.Builder(this@DownloadsActivity)
         builder.setTitle(downloadStatus.mediaInfo.title)
-            .setMessage("Status: " + statusString(downloadStatus).toUpperCase())
+            .setMessage("Status: " + statusString(downloadStatus).uppercase(Locale.getDefault()))
 
         if (downloadStatus.status == VdoDownloadManager.STATUS_COMPLETED) {
             builder.setPositiveButton("PLAY") { dialog, _ ->
@@ -435,7 +550,8 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
     private inner class DownloadAdapter(private val statusList: List<DownloadStatus>) :
         RecyclerView.Adapter<DownloadAdapter.ViewHolder>() {
 
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+            View.OnClickListener {
             var title: TextView
             var status: TextView
 
@@ -463,7 +579,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val status = statusList[position]
             holder.title.text = status.mediaInfo.title
-            holder.status.text = statusString(status).toUpperCase()
+            holder.status.text = statusString(status).uppercase(Locale.getDefault())
         }
 
         override fun getItemCount(): Int {

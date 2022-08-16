@@ -1,37 +1,23 @@
 package com.vdocipher.sampleapp.kotlin
 
 import android.content.Context
-import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.View
-import androidx.appcompat.app.AlertDialog
-import com.vdocipher.aegis.media.ErrorDescription
-import com.vdocipher.aegis.player.VdoPlayer
-import kotlin.math.max
-import kotlin.math.min
-import android.util.Log
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.SeekBar
-import android.widget.TextView
-import android.widget.ImageButton
-import android.widget.ProgressBar
-import android.widget.ListAdapter
-import android.widget.ArrayAdapter
-import com.vdocipher.aegis.media.Track
-import com.vdocipher.aegis.player.VdoInitParams
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.AttributeSet
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import com.vdocipher.aegis.media.ErrorDescription
+import com.vdocipher.aegis.media.Track
+import com.vdocipher.aegis.player.VdoInitParams
+import com.vdocipher.aegis.player.VdoPlayer
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.*
-import android.widget.Toast
-
-
-
-
-
-
+import kotlin.math.max
+import kotlin.math.min
 
 
 class VdoPlayerControlView @JvmOverloads constructor(
@@ -46,6 +32,7 @@ class VdoPlayerControlView @JvmOverloads constructor(
         private const val DEFAULT_FAST_FORWARD_MS = 10000
         private const val DEFAULT_REWIND_MS = 10000
         private const val DEFAULT_SHOW_TIMEOUT_MS = 3000
+        private val ERROR_CODES_FOR_NEW_PARAMS = listOf(2013, 2018)
 
         private val allowedSpeedList = floatArrayOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f)
         private val allowedSpeedStrList =
@@ -98,20 +85,20 @@ class VdoPlayerControlView @JvmOverloads constructor(
     private var helperThread: HandlerThread? = null
     private var helperHandler: Handler? = null
 
-    private val ffwdMs: Int
-    private val rewindMs: Int
-    private val showTimeoutMs: Int
+    private val ffwdMs: Int = DEFAULT_FAST_FORWARD_MS
+    private val rewindMs: Int = DEFAULT_REWIND_MS
+    private val showTimeoutMs: Int = DEFAULT_SHOW_TIMEOUT_MS
+
 
     private var scrubbing: Boolean = false
     private var attachedToWindow: Boolean = false
     private var fullscreen: Boolean = false
     private var chosenSpeedIndex = 2
 
-    private val ERROR_CODES_FOR_NEW_PARAMS = Arrays.asList(2013, 2018)
-
     private var player: VdoPlayer? = null
     private val uiListener: UiListener
-    private var lastErrorParams: VdoInitParams? = null // todo gather all relevant state and update UI using it
+    private var lastErrorParams: VdoInitParams? =
+        null // todo gather all relevant state and update UI using it
     private var needNewVdoParams: Boolean = false
     private var fullscreenActionListener: FullscreenActionListener? = null
     private var visibilityListener: ControllerVisibilityListener? = null
@@ -120,9 +107,6 @@ class VdoPlayerControlView @JvmOverloads constructor(
     private val hideAction = Runnable { hide() }
 
     init {
-        ffwdMs = DEFAULT_FAST_FORWARD_MS
-        rewindMs = DEFAULT_REWIND_MS
-        showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS
 
         uiListener = UiListener()
         LayoutInflater.from(context).inflate(R.layout.vdo_control_view, this)
@@ -183,7 +167,7 @@ class VdoPlayerControlView @JvmOverloads constructor(
                 typeTrackList.add(availableTrack)
             }
         }
-        if (typeTrackList != null && typeTrackList.size > 0) {
+        if (typeTrackList.size > 0) {
             captionsButton.visibility = VISIBLE
         }
     }
@@ -228,7 +212,7 @@ class VdoPlayerControlView @JvmOverloads constructor(
 
         helperThread = HandlerThread(TAG)
         helperThread!!.start()
-        helperHandler = Handler(helperThread!!.getLooper())
+        helperHandler = Handler(helperThread!!.looper)
     }
 
     override fun onDetachedFromWindow() {
@@ -349,11 +333,11 @@ class VdoPlayerControlView @JvmOverloads constructor(
         var selectedIndex = availableTracks.indexOf(selectedTrack)
 
         // We need audio track bitrate in order to show combined bandwidth
-        val audioBitrate = getAudioBitrate(playerRef.selectedTracks);
+        val audioBitrate = getAudioBitrate(playerRef.selectedTracks)
 
         // first, let's convert tracks to array of TrackHolders for better display in dialog
         val trackHolders = availableTracks.map {
-            if (trackType === Track.TYPE_VIDEO) TrackHolder(
+            if (trackType == Track.TYPE_VIDEO) TrackHolder(
                 it, audioBitrate
             ) else TrackHolder(it)
         }.toMutableList()
@@ -365,15 +349,14 @@ class VdoPlayerControlView @JvmOverloads constructor(
             // if no captions are selected, indicate DISABLE_CAPTIONS as selected in dialog
             if (selectedIndex < 0) selectedIndex = trackHolders.size - 1
         } else if (trackType == Track.TYPE_VIDEO) {
-            // todo auto option to go back to adaptive mode
-            /*
-            Uncomment to show a "default" option when only one track available
-            if (trackHolders.size == 1) {
+            if (trackHolders.size <= 1) {
                 // just show a default track option
                 trackHolders.clear()
                 trackHolders.add(TrackHolder.DEFAULT)
+            } else {
+                trackHolders.add(0, TrackHolder(Track.SET_ADAPTIVE))
+                selectedIndex = if (player!!.isAdaptive) 0 else selectedIndex + 1
             }
-            */
         }
 
         val trackHolderArr: Array<TrackHolder> = trackHolders.toTypedArray()
@@ -588,9 +571,9 @@ class VdoPlayerControlView @JvmOverloads constructor(
      * A helper class that holds a Track instance and overrides [kotlin.toString] for
      * captions tracks for displaying to user.
      */
-    private open class TrackHolder internal constructor(
-        internal val track: Track?,
-        internal val audioBitrate: Int = 0
+    private open class TrackHolder(
+        val track: Track?,
+        val audioBitrate: Int = 0
     ) {
 
         /**
@@ -602,6 +585,8 @@ class VdoPlayerControlView @JvmOverloads constructor(
                     "Default"
                 track === Track.DISABLE_CAPTIONS ->
                     "Turn off Captions"
+                track === Track.SET_ADAPTIVE ->
+                    "Auto"
                 track.type == Track.TYPE_VIDEO ->
                     "${(track.bitrate + audioBitrate) / 1024}kbps (${dataExpenditurePerHour(track.bitrate + audioBitrate)})"
                 track.type == Track.TYPE_CAPTIONS ->

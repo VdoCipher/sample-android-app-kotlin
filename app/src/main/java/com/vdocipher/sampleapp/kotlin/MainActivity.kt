@@ -25,7 +25,12 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun downloads(v: View) {
+    fun onlinePlaybackWithUI(v: View) {
+        val intent = Intent(this, VdoPlayerUIActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun showDownloads(v: View) {
         val intent = Intent(this, DownloadsActivity::class.java)
         startActivity(intent)
     }
