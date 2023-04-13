@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              tools:context="com.vdocipher.sampleapp.kotlin.PlayerActivity">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        tools:context="com.vdocipher.sampleapp.kotlin.PlayerActivity">
 
     <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
         <fragment
-                android:name="com.vdocipher.aegis.player.VdoPlayerSupportFragment"
                 android:id="@+id/vdo_player_fragment"
+                android:name="com.vdocipher.aegis.ui.view.VdoPlayerUIFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:keepScreenOn="true"/>
+                app:showControls="false"
+                android:keepScreenOn="true" />
+
         <com.vdocipher.sampleapp.kotlin.VdoPlayerControlView
                 android:id="@+id/player_control_view"
                 android:layout_alignTop="@id/vdo_player_fragment"
                 android:layout_alignBottom="@id/vdo_player_fragment"
-                android:layout_alignLeft="@id/vdo_player_fragment"
-                android:layout_alignRight="@id/vdo_player_fragment"
+                android:layout_alignStart="@id/vdo_player_fragment"
+                android:layout_alignEnd="@id/vdo_player_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
     </RelativeLayout>
@@ -33,7 +37,8 @@
             android:layout_gravity="center"
             android:padding="10dp"
             android:textSize="24sp"
-            android:text="Sample online playback"/>
+            android:text="Sample online playback" />
+
     <TextView
             android:id="@+id/library_version"
             android:layout_width="wrap_content"
@@ -42,7 +47,7 @@
             android:textColor="@android:color/darker_gray"
             android:textSize="14sp"
             android:text=""
-            tools:hint="sdk version: a.b.c"/>
+            tools:hint="sdk version: a.b.c" />
 
     <LinearLayout
             android:id="@+id/log_container"
@@ -53,19 +58,21 @@
             android:layout_weight="1"
             android:layout_height="0dp"
             android:orientation="vertical"
-            android:gravity="left|bottom">
+            android:gravity="start|bottom">
+
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:textColor="@android:color/black"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Player Event Log"/>
+                android:text="Player Event Log" />
+
         <TextView
                 android:id="@+id/event_log"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:gravity="bottom"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:maxLines="10"

@@ -23,7 +23,10 @@
         <activity android:name=".DownloadsActivity" />
         <activity
                 android:name=".PlayerActivity"
-                android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout" />
+                android:launchMode="singleTask"
+                android:supportsPictureInPicture="true"
+                android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+                tools:targetApi="n" />
         <activity
                 android:name=".VdoPlayerUIActivity"
                 android:launchMode="singleTask"

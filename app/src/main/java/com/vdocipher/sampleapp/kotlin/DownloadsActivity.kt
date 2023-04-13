@@ -98,7 +98,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
 
         resumeAll.setOnClickListener { resumeAll() }
 
-        downloadAll.setOnClickListener { v: View? -> downloadAllMediaItems() }
+        downloadAll.setOnClickListener { downloadAllMediaItems() }
 
         refreshList.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -222,7 +222,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
 
             //retrieve the download option iteratively for each video
             handler.post {
-                OptionsDownloader().downloadOptionsWithOtp(
+                OptionsDownloader(baseContext).downloadOptionsWithOtp(
                     otpAndPlaybackInfo.first,
                     otpAndPlaybackInfo.second,
                     null,
@@ -345,7 +345,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         Handler(handlerThread.looper).post {
-            OptionsDownloader().downloadOptionsWithOtp(
+            OptionsDownloader(baseContext).downloadOptionsWithOtp(
                 otp,
                 playbackInfo,
                 null,
@@ -562,7 +562,7 @@ class DownloadsActivity : AppCompatActivity(), VdoDownloadManager.EventListener 
             }
 
             override fun onClick(v: View) {
-                val position = adapterPosition
+                val position = absoluteAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val status = statusList[position]
                     showItemSelectedDialog(status)

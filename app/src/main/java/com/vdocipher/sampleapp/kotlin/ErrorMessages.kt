@@ -20,7 +20,7 @@ object ErrorMessages {
             4101 -> messagePrefix + "Invalid video parameters. Please contact the app developer."
             4102 -> messagePrefix + "Offline video not found. Please make sure the video was " +
                     "downloaded successfully and not deleted."
-            5110, 5124, 5130 -> messagePrefix + "Please check your internet connection and try restarting " +
+            5110, 5114, 5124, 5130 -> messagePrefix + "Please check your internet connection and try restarting " +
                     "the app."
             5113, 5123, 5133, 5152 -> messagePrefix + "Temporary service error. This should automatically resolve " +
                     "quickly. Please try playback again."
@@ -37,6 +37,7 @@ object ErrorMessages {
                     "corrected, factory reset can be tried if possible."
             6187 -> messagePrefix + "Rental license for downloaded video has expired. Kindly " +
                     "download again."
+            6197, 6198 -> messagePrefix + "DRM provisioning error. Kindly try restarting the phone and reinstalling app."
             else -> """
                  An error occurred: ${errorDescription.errorCode}
                  Tap to retry

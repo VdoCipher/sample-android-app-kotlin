@@ -92,31 +92,31 @@ class OptionSelector(
         attributeArray.recycle()
 
         if (optionStyle === OptionStyle.SHOW_INDIVIDUAL_TRACKS) {
-            buildIndividualTracksView(context, inflater, root, selectableItemBackgroundResourceId, tracks)
+            buildIndividualTracksView(inflater, root, selectableItemBackgroundResourceId, tracks)
         } else {
-            buildCombinedTrackView(context, inflater, root, selectableItemBackgroundResourceId, tracks)
+            buildCombinedTrackView(inflater, root, selectableItemBackgroundResourceId, tracks)
         }
 
         return view
     }
 
     private fun buildIndividualTracksView(
-        context: Context, inflater: LayoutInflater, root: ViewGroup,
-        selectableItemBackgroundResourceId: Int, tracks: Array<Track>
+        inflater: LayoutInflater, root: ViewGroup, selectableItemBackgroundResourceId: Int,
+        tracks: Array<Track>
     ) {
         // video and audio type track views
         val vidTrackIndices = getTypeIndices(tracks, Track.TYPE_VIDEO)
-        Log.i(TAG, "${vidTrackIndices.size} video tracks at ${Arrays.toString(vidTrackIndices)}")
+        Log.i(TAG, "${vidTrackIndices.size} video tracks at ${vidTrackIndices.contentToString()}")
         addTypeTracksToView(inflater, root, selectableItemBackgroundResourceId, tracks, vidTrackIndices)
         root.addView(inflater.inflate(R.layout.list_divider, root, false))
         val audTrackIndices = getTypeIndices(tracks, Track.TYPE_AUDIO)
-        Log.i(TAG, "${audTrackIndices.size} audio tracks at ${Arrays.toString(audTrackIndices)}")
+        Log.i(TAG, "${audTrackIndices.size} audio tracks at ${audTrackIndices.contentToString()}")
         addTypeTracksToView(inflater, root, selectableItemBackgroundResourceId, tracks, audTrackIndices)
     }
 
     private fun buildCombinedTrackView(
-        context: Context, inflater: LayoutInflater, root: ViewGroup,
-        selectableItemBackgroundResourceId: Int, tracks: Array<Track>
+        inflater: LayoutInflater, root: ViewGroup, selectableItemBackgroundResourceId: Int,
+        tracks: Array<Track>
     ) {
         // we'll show two options: highest quality (audio + video) and lowest quality (audio + video)
 
@@ -299,9 +299,9 @@ class OptionSelector(
         }
 
         private fun getDownloadItemName(track: Track, durationMs: Long): String {
-            val type = when {
-                track.type == Track.TYPE_VIDEO -> "V"
-                track.type == Track.TYPE_AUDIO -> "A"
+            val type = when (track.type) {
+                Track.TYPE_VIDEO -> "V"
+                Track.TYPE_AUDIO -> "A"
                 else -> "?"
             }
             return "$type ${track.bitrate / 1024} kbps, ${getSizeString(track.bitrate, durationMs)}"
