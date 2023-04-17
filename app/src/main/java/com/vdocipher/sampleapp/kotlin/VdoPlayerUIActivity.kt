@@ -62,7 +62,6 @@ class VdoPlayerUIActivity : AppCompatActivity(), PlayerHost.InitializationListen
         eventLog = findViewById(R.id.event_log)
         eventLog.movementMethod = ScrollingMovementMethod.getInstance()
         currentOrientation = resources.configuration.orientation
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         initializePlayer()
     }
 
