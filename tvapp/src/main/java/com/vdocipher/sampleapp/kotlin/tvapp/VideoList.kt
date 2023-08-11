@@ -1,7 +1,5 @@
 package com.vdocipher.sampleapp.kotlin.tvapp
 
-import java.util.ArrayList
-
 object VideoList {
     val VIDEO_CATEGORY = arrayOf(
         "Sample Videos",
@@ -18,26 +16,23 @@ object VideoList {
 
     fun setupVideos(): MutableList<Video>? {
         list = ArrayList()
+
         val title = arrayOf(
-            "Big buck bunny",
-            "Elephant Dream"
-        )
+            "Sample")
+
         val otp = arrayOf(
-            "20160313versASE323iH4eNlQDjw93A8kxlDIuD0JVji4KTAsQbq5vWzyt7NvXTg",
-            "20160313versASE323SXXgm4fzUPSaZxsUIpX9vMO0t3MgCSTEKyRCALfJG8je72"
-        )
+            "20150519versASE31ba8fc50a0ac49b8e74b9c40f49e099755cd36dc8adccaa3")
+
         val playbackInfo = arrayOf(
-            "eyJ2aWRlb0lkIjoiMTlkNzg3NzcwMmFlNGE0NmIwZDcwZTIwZThlM2FjNzIifQ==",
-            "eyJ2aWRlb0lkIjoiZWFiMTU2ZWM3ODM3NGRjYzk1NTFhMDIwNTU1MmRkYTcifQ=="
-        )
+            "eyJ2aWRlb0lkIjoiM2YyOWI1NDM0YTVjNjE1Y2RhMThiMTZhNjIzMmZkNzUifQ==")
+
         val description = arrayOf(
-            "Big Buck Bunny tells the story of a giant rabbit with a heart bigger than himself.",
-            "The first Blender Open Movie from 2006"
-        )
+            "Sample Video")
+
+
         val cardImageUrl = arrayOf(
-            "https://d1z78r8i505acl.cloudfront.net/poster/toQsFmrSDfY8z.720.jpeg",
-            "https://d1z78r8i505acl.cloudfront.net/poster/BGbRHpGC5OAzy.720.jpeg"
-        )
+            "https://d1z78r8i505acl.cloudfront.net/poster/toQsFmrSDfY8z.720.jpeg")
+
         for (index in title.indices) {
             (list as ArrayList<Video>).add(
                 buildVideoInfo(
