@@ -1,0 +1,17 @@
+<resources>
+
+    <style name="Theme.Sampleandroidapp" parent="@style/Theme.Leanback" />
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.Sampleandroidapp.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Sampleandroidapp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Sampleandroidapp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>

@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">VdoCipher Tv App</string>
+    <string name="browse_title">VdoCipher Sample App</string>
+    <string name="related_movies">Related Videos</string>
+    <string name="grid_view">Grid View</string>
+    <string name="error_fragment">Error Fragment</string>
+    <string name="personal_settings">Personal Settings</string>
+    <string name="movie">Movie</string>
+
+    <!-- Error messages -->
+    <string name="error_fragment_message">An error occurred</string>
+    <string name="dismiss_error">Dismiss</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+</resources>

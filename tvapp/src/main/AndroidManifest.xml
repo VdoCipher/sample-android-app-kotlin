@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/logo_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Sampleandroidapp">
+        <activity
+            android:name="com.vdocipher.sampleapp.kotlin.tvapp.MainActivity"
+            android:banner="@mipmap/logo_launcher"
+            android:exported="true"
+            android:icon="@mipmap/logo_launcher"
+            android:logo="@mipmap/logo_launcher"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".TvPlayerUIActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme"
+            tools:targetApi="n" />
+        <activity
+            android:name=".TvPlayerActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Leanback" >
+        </activity>
+    </application>
+
+</manifest>

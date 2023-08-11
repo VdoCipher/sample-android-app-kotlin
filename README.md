@@ -29,7 +29,7 @@ If you also need Google Cast integration for your app, add a dependency to the c
 Add the dependency in your cast app module's `build.gradle` file.
 
 ```
-def vdocipher_sdk_version = '1.19.4'
+def vdocipher_sdk_version = '1.22.4'
 ```
 
 ```

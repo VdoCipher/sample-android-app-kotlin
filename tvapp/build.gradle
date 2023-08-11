@@ -1,0 +1,40 @@
+apply from: '../constants.gradle'
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
+
+android {
+    namespace 'com.vdocipher.sampleapp.kotlin.tvapp'
+    compileSdkVersion project.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.vdocipher.sampleapp.kotlin.tvapp"
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.leanback:leanback:1.0.0'
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    implementation 'com.vdocipher.aegis:vdocipher-android:' + project.ext.vdocipherSdkVersion
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.navigation:navigation-fragment:2.5.3'
+    implementation 'androidx.navigation:navigation-ui:2.5.3'
+}
