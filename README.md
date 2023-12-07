@@ -19,7 +19,7 @@ repositories {
 
 ```
 // use the latest available version
-implementation 'com.vdocipher.aegis:vdocipher-android:1.23.4'
+implementation 'com.vdocipher.aegis:vdocipher-android:1.24.1'
 ```
 
 ### Add cast plugin dependency
@@ -29,7 +29,7 @@ If you also need Google Cast integration for your app, add a dependency to the c
 Add the dependency in your cast app module's `build.gradle` file.
 
 ```
-def vdocipher_sdk_version = '1.23.1'
+def vdocipher_sdk_version = '1.24.1'
 ```
 
 ```
