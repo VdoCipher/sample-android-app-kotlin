@@ -19,7 +19,7 @@ repositories {
 
 ```
 // use the latest available version
-implementation 'com.vdocipher.aegis:vdocipher-android:1.23.4'
+implementation 'com.vdocipher.aegis:vdocipher-android:1.26.2'
 ```
 
 ### Add cast plugin dependency
