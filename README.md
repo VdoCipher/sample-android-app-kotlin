@@ -39,7 +39,7 @@ implementation 'com.google.android.gms:play-services-cast-framework:16.2.0'
 
 ### Enable Java 17 support
 
-You also need to ensure Java 8 support is enabled by adding the following block to each of your app module's `build.gradle` file inside the `android` block:
+You also need to ensure Java 17 support is enabled by adding the following block to each of your app module's `build.gradle` file inside the `android` block:
 
 ```
 compileOptions {
