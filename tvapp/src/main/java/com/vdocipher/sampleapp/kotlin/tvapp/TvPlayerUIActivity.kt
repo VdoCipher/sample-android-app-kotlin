@@ -13,8 +13,10 @@ import com.vdocipher.aegis.player.PlayerHost
 import com.vdocipher.aegis.player.VdoPlayer
 import com.vdocipher.aegis.media.ErrorDescription
 import android.widget.Toast
+import com.vdocipher.aegis.media.PlayerOption
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.VdoPlayer.PlaybackEventListener
+import com.vdocipher.aegis.player.VdoTimeLine
 
 class TvPlayerUIActivity : AppCompatActivity(), InitializationListener {
     private var vdoPlayerUIFragment: VdoPlayerUIFragment? = null
@@ -80,9 +82,19 @@ class TvPlayerUIActivity : AppCompatActivity(), InitializationListener {
         ).show()
     }
 
+    override fun onDeInitializationSuccess() {
+        TODO("Not yet implemented")
+    }
+
     private val playbackListener: PlaybackEventListener = object : PlaybackEventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {}
         override fun onTracksChanged(tracks: Array<Track>, tracks1: Array<Track>) {}
+        override fun onMetaDataLoaded(playerOption: PlayerOption?) {
+        }
+
+        override fun onTimelineChanged(vdoTimeLine: VdoTimeLine?, state: Int) {
+        }
+
         override fun onBufferUpdate(bufferTime: Long) {}
         override fun onSeekTo(millis: Long) {
             Log.i(TAG, "onSeekTo: $millis")

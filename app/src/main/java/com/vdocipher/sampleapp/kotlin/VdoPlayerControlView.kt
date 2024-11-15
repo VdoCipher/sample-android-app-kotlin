@@ -10,9 +10,11 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import com.vdocipher.aegis.media.ErrorDescription
+import com.vdocipher.aegis.media.PlayerOption
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.VdoInitParams
 import com.vdocipher.aegis.player.VdoPlayer
+import com.vdocipher.aegis.player.VdoTimeLine
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.*
@@ -565,6 +567,11 @@ class VdoPlayerControlView @JvmOverloads constructor(
         }
 
         override fun onTracksChanged(availableTracks: Array<Track>, selectedTracks: Array<Track>) {}
+        override fun onMetaDataLoaded(playerOption: PlayerOption?) {
+        }
+
+        override fun onTimelineChanged(vdoTimeLine: VdoTimeLine?, state: Int) {
+        }
     }
 
     /**

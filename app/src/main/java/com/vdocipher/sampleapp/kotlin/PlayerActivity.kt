@@ -25,10 +25,12 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.vdocipher.aegis.media.ErrorDescription
+import com.vdocipher.aegis.media.PlayerOption
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.PlayerHost
 import com.vdocipher.aegis.player.VdoInitParams
 import com.vdocipher.aegis.player.VdoPlayer
+import com.vdocipher.aegis.player.VdoTimeLine
 import com.vdocipher.aegis.ui.view.VdoPlayerUIFragment
 import com.vdocipher.sampleapp.kotlin.databinding.ActivityPlayerBinding
 import org.json.JSONException
@@ -290,6 +292,10 @@ class PlayerActivity : AppCompatActivity(), PlayerHost.InitializationListener {
         showToast("initialization failure: ${errorDescription.errorCode}")
     }
 
+    override fun onDeInitializationSuccess() {
+        TODO("Not yet implemented")
+    }
+
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         enterPictureInPictureMode(PictureInPictureParams.Builder().build())
@@ -327,6 +333,12 @@ class PlayerActivity : AppCompatActivity(), PlayerHost.InitializationListener {
         override fun onTracksChanged(tracks: Array<Track>, tracks1: Array<Track>) {
             Log.i(TAG, "onTracksChanged")
             log("onTracksChanged")
+        }
+
+        override fun onMetaDataLoaded(playerOption: PlayerOption?) {
+        }
+
+        override fun onTimelineChanged(vdoTimeLine: VdoTimeLine?, state: Int) {
         }
 
         override fun onBufferUpdate(bufferTime: Long) {}

@@ -11,7 +11,9 @@ import com.vdocipher.aegis.media.ErrorDescription
 import com.vdocipher.aegis.player.VdoInitParams
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.vdocipher.aegis.media.PlayerOption
 import com.vdocipher.aegis.media.Track
+import com.vdocipher.aegis.player.VdoTimeLine
 
 /**
  * This class serves as a basic example of integrating playback in android TV.
@@ -57,6 +59,9 @@ class TvPlayerActivity : FragmentActivity(), InitializationListener, PlaybackEve
         showToast("Initialization failure. Reason: " + errorDescription.errorCode + ", " + errorDescription.errorMsg)
     }
 
+    override fun onDeInitializationSuccess() {
+    }
+
     override fun onPlayerStateChanged(playWhenReady: Boolean, state: Int) {
         overlayFragment!!.playbackStateChanged(playWhenReady, state)
     }
@@ -91,6 +96,12 @@ class TvPlayerActivity : FragmentActivity(), InitializationListener, PlaybackEve
     }
 
     override fun onTracksChanged(tracks: Array<Track>, tracks1: Array<Track>) {}
+    override fun onMetaDataLoaded(playerOptions: PlayerOption?) {
+    }
+
+    override fun onTimelineChanged(vdoTimeLine: VdoTimeLine?, state: Int) {
+    }
+
     private fun loadParams() {
         val video = intent.getParcelableExtra<Video>(TvPlayerUIActivity.VIDEO)
         val vdoParams = VdoInitParams.createParamsWithOtp(video!!.videoOtp, video.videoPlaybackInfo)

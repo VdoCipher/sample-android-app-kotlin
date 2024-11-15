@@ -17,11 +17,13 @@ import androidx.annotation.WorkerThread
 import androidx.appcompat.app.AppCompatActivity
 import com.vdocipher.aegis.BuildConfig
 import com.vdocipher.aegis.media.ErrorDescription
+import com.vdocipher.aegis.media.PlayerOption
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.PlayerHost
 import com.vdocipher.aegis.player.VdoInitParams
 import com.vdocipher.aegis.player.VdoPlayer
 import com.vdocipher.aegis.player.VdoPlayer.PlaybackEventListener
+import com.vdocipher.aegis.player.VdoTimeLine
 import com.vdocipher.aegis.ui.view.VdoPlayerUIFragment
 import org.json.JSONException
 import java.io.IOException
@@ -195,6 +197,10 @@ class VdoPlayerUIActivity : AppCompatActivity(), PlayerHost.InitializationListen
         ).show()
     }
 
+    override fun onDeInitializationSuccess() {
+        TODO("Not yet implemented")
+    }
+
     private val playbackListener: PlaybackEventListener = object : PlaybackEventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             log(playbackStateString(playWhenReady, playbackState))
@@ -203,6 +209,12 @@ class VdoPlayerUIActivity : AppCompatActivity(), PlayerHost.InitializationListen
         override fun onTracksChanged(tracks: Array<Track>, tracks1: Array<Track>) {
             Log.i(TAG, "onTracksChanged")
             log("onTracksChanged")
+        }
+
+        override fun onMetaDataLoaded(p0: PlayerOption?) {
+        }
+
+        override fun onTimelineChanged(p0: VdoTimeLine?, p1: Int) {
         }
 
         override fun onBufferUpdate(bufferTime: Long) {}
