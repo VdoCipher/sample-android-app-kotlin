@@ -43,8 +43,8 @@ You also need to ensure Java 8 support is enabled by adding the following block 
 
 ```
 compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
 }
 ```
 
