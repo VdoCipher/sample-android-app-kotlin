@@ -1,6 +1,6 @@
 project.ext {
-    compileSdkVersion = 35
-    minSdkVersion = 21
-    targetSdkVersion = 35
-    vdocipherSdkVersion = '1.28.6'
+    compileSdkVersion = 36
+    minSdkVersion = 24
+    targetSdkVersion = 36
+    vdocipherSdkVersion = '1.29.1'
 }
